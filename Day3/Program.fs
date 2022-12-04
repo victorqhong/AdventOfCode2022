@@ -9,45 +9,32 @@ let mapItemPriority(item: char) : int =
         | (false, true) -> value - 96
         | (_, _) -> raise(Exception())
 
+let createBitmap(items: char[]) : bool[] =
+    let bitmap : bool[] = Array.zeroCreate 52
+    Array.ForEach(items, fun x -> bitmap.[mapItemPriority(x) - 1] <- true)
+    bitmap
+
 module Part1 =
-    let private compartmentItemsFirst(items: string) : string =
-        items.Substring(0, items.Length / 2)
-
-    let private compartmentItemsSecond(items: string) : string =
-        items.Substring(items.Length / 2, items.Length / 2)
-
-    let private findCommonItem(firstItems: string, secondItems: string) : char =
-        let hashmap : bool[] = Array.zeroCreate 52
-        Array.ForEach(firstItems.ToCharArray(), fun x -> hashmap.[mapItemPriority(x) - 1] <- true)
-        let duplicates = secondItems.ToCharArray() |> Array.filter(fun x -> hashmap.[mapItemPriority(x) - 1]) |> Array.distinct
-        match duplicates.Length with
-            | 1 -> duplicates.[0]
-            | _ -> raise(Exception())
-
-    let private processItem(item: string) : int =
-        let firstItems = compartmentItemsFirst(item)
-        let secondItems = compartmentItemsSecond(item)
-        let commonItem = findCommonItem(firstItems, secondItems)
-        mapItemPriority(commonItem)
-
-    let calculatePrioritySum(input: string[]) : int =
-        input |> Array.sumBy(processItem)
-
-module Part2 =
-    let private calculateGroupPriority(group: string[]) : int =
-        let bitmap1 : bool[] = Array.zeroCreate 52
-        let bitmap2 : bool[] = Array.zeroCreate 52
-        let bitmap3 : bool[] = Array.zeroCreate 52
-        Array.ForEach(group.[0].ToCharArray(), fun x -> bitmap1.[mapItemPriority(x) - 1] <- true)
-        Array.ForEach(group.[1].ToCharArray(), fun x -> bitmap2.[mapItemPriority(x) - 1] <- true)
-        Array.ForEach(group.[2].ToCharArray(), fun x -> bitmap3.[mapItemPriority(x) - 1] <- true)
-        let result = [| 0 .. 51 |] |> Array.map(fun x -> bitmap1.[x] && bitmap2.[x] && bitmap3.[x])
-        let index = result |> Array.findIndex(fun x -> x)
+    let private findCommonItemPriority(items: char[] * char[]) : int =
+        let (firstItems, secondItems) = items
+        let bitmap1 : bool[] = createBitmap firstItems
+        let bitmap2 : bool[] = createBitmap secondItems
+        let index = [| 0 .. 51 |] |> Array.map(fun x -> bitmap1.[x] && bitmap2.[x]) |> Array.findIndex(fun x -> x)
         index + 1
 
     let calculatePrioritySum(input: string[]) : int =
-        let groups = input |> Array.splitInto(input.Length / 3)
-        groups |> Array.sumBy(fun x -> calculateGroupPriority(x))
+        input |> Array.sumBy (fun item -> item.ToCharArray() |> Array.splitAt(item.Length / 2) |> findCommonItemPriority)
+
+module Part2 =
+    let private calculateGroupPriority(group: string[]) : int =
+        let bitmap1 : bool[] = createBitmap(group.[0].ToCharArray())
+        let bitmap2 : bool[] = createBitmap(group.[1].ToCharArray())
+        let bitmap3 : bool[] = createBitmap(group.[2].ToCharArray())
+        let index = [| 0 .. 51 |] |> Array.map(fun x -> bitmap1.[x] && bitmap2.[x] && bitmap3.[x]) |> Array.findIndex(fun x -> x)
+        index + 1
+
+    let calculatePrioritySum(input: string[]) : int =
+        input |> Array.splitInto(input.Length / 3) |> Array.sumBy calculateGroupPriority
 
 [<EntryPoint>]
 let main argv =

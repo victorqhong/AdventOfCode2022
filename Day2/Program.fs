@@ -12,12 +12,9 @@ type Result =
 
 let mapChoice(choice: char) : Choice =
     match choice with
-        | 'A' -> Choice.Rock
-        | 'B' -> Choice.Paper
-        | 'C' -> Choice.Scissors
-        | 'X' -> Choice.Rock
-        | 'Y' -> Choice.Paper
-        | 'Z' -> Choice.Scissors
+        | 'A' | 'X' -> Choice.Rock
+        | 'B' | 'Y' -> Choice.Paper
+        | 'C' | 'Z' -> Choice.Scissors
         | _ -> raise(Exception())
 
 let mapResult(result: char) : Result =
@@ -78,6 +75,6 @@ let main argv =
     printfn $"Calculated part 1 score: {score1}"
 
     let score2 = Part2.calculateScore(input)
-    printfn $"Calculated part2 score: {score2}"
+    printfn $"Calculated part 2 score: {score2}"
 
     0

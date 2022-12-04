@@ -14,7 +14,7 @@ let parseAssignmentPairs(assignmentPairs: string) : int * int * int * int =
     (min1, max1, min2, max2)
 
 module Part1 =
-    let processItem(assignmentPairs: string) : int =
+    let private processItem(assignmentPairs: string) : int =
         let (min1, max1, min2, max2) = parseAssignmentPairs(assignmentPairs)
         
         let min = Math.Min(min1, min2)

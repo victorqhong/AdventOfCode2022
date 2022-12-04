@@ -1,6 +1,6 @@
 ﻿open System
 
-let private makePartitions (array: string[]) =
+let makePartitions (array: string[]) =
     let index = array |> Array.tryFindIndex(fun x -> x = "")
     match index with
         | Some(value) -> array |> Array.splitAt value
@@ -10,13 +10,10 @@ let private convertAndSum (array: string[]) =
     array |> Array.sumBy Convert.ToInt32
 
 module Part1 =
-    let rec private findGreatestSumRec (x: string[] * string[], sum: string[] -> int) = 
-        match x with
-        | (a, [||]) -> sum(a)
-        | (a, b) -> Math.Max(sum(a), findGreatestSumRec(makePartitions(b.[1..]), sum))
-
-    let findGreatestSum (values: string[]) =
-        findGreatestSumRec(makePartitions(values), convertAndSum)
+    let rec findGreatestSum (input: string[]) =
+        match makePartitions(input) with
+        | (a, [||]) -> convertAndSum(a)
+        | (a, b) -> Math.Max(convertAndSum(a), findGreatestSum(b.[1..]))
 
 module Part2 =
     let rec private calculateElfCalories (values: string[]) : int list =
@@ -24,9 +21,8 @@ module Part2 =
             | (a, [||]) -> [convertAndSum(a)]
             | (a, b) -> List.concat(seq { [convertAndSum(a)]; calculateElfCalories(b.[1..]) })
 
-    let topThreeSum (values: string[]) =
-        let sortedElfCalories = calculateElfCalories(values) |> List.sortDescending
-        sortedElfCalories.[0] + sortedElfCalories.[1] + sortedElfCalories.[2]
+    let topThreeSum (input: string[]) =
+        calculateElfCalories(input) |> List.sortDescending |> List.take 3 |> List.sum
 
 [<EntryPoint>]
 let main argv =
