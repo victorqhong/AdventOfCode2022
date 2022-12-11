@@ -3,7 +3,6 @@
 let private makeGrid(input: string[]) : int[,] =
     let n = input.[0].Length
     Array2D.init n n (fun i j -> int(input.[j].[i]) - int('0'))
-    
 
 module Part1 =
     let private isVisible(x: int, y: int, height: int, grid: int[,]) : int =
